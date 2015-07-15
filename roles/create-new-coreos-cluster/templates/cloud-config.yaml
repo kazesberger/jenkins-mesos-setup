@@ -1,0 +1,95 @@
+#cloud-config
+
+hostname: {{ inventory_hostname }}
+manage_etc_hosts: localhost
+
+write-files:
+
+  - path: /etc/systemd/system/docker.service.d/50-insecure-registry.conf
+    content: |
+      [Service]
+      Environment='DOCKER_OPTS=--insecure-registry="10.1.30.0/24"'
+
+  - path: /etc/ntp.conf
+    content: |
+      # Common pool
+      server 195.3.81.38
+      server 195.3.81.41
+
+      # Permit time synchronization with our time source, but do not
+      # permit the source to query or modify the service on this system.
+      restrict default kod nomodify notrap nopeer noquery
+      restrict -6 default kod nomodify notrap nopeer noquery
+
+      # Permit all access over the loopback interface.  This could
+      # be tightened as well, but to do so would effect some of
+      # the administrative functions.
+      restrict 127.0.0.1
+      restrict -6 ::1
+
+
+  - path: /etc/systemd/system/docker.service.d/increase-ulimit.conf
+    owner: core:core
+    permissions: '0644'
+    content: |
+      [Service]
+      LimitMEMLOCK=infinity
+      LimitSTACK=infinity
+      LimitLOCKS=infinity
+
+
+
+
+coreos:
+  etcd2:
+    discovery: {{ discovery_url }}
+    advertise-client-urls: http://{{ vm_ip }}:2379
+    initial-advertise-peer-urls: http://{{ vm_ip }}:2380
+    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    listen-peer-urls: http://0.0.0.0:2380
+
+  fleet:
+    public-ip: {{ vm_ip }}
+
+  units:
+    - name: etcd2.service
+      command: start
+
+    - name: fleet.service
+      command: start
+
+    - name: settimezone.service
+      command: start
+      content: |
+        [Unit]
+        Description=Set the timezone
+
+        [Service]
+        ExecStart=/usr/bin/timedatectl set-timezone Europe/Vienna
+        RemainAfterExit=yes
+        Type=oneshot
+
+    - name: 20-dhcp.network
+      content: |
+        [Match]
+        Name=eth*
+        [Network]
+        DHCP=yes
+
+
+    - name: rpc-statd.service
+      command: start
+      enable: true
+
+users:
+  - name: jenkins
+    groups:
+      - sudo
+      - docker
+    ssh_authorized_keys:
+# one can add public keys of admins hardcoded here
+      - {{ system_pub_key }}
+  - name: core
+    ssh_authorized_keys:
+# one can add public keys of admins hardcoded here
+      - {{ system_pub_key }}

@@ -1,0 +1,27 @@
+[Unit]
+Description=Zookeeper
+After=docker.service
+Before=mesos-master.service
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker stop zookeeper
+ExecStartPre=-/usr/bin/docker rm zookeeper
+ExecStart=/usr/bin/docker run \
+  --name=zookeeper \
+  --net={{ docker_net_mode }} \
+  -p {{ zk_client_port }}:2181 \
+  -p {{ zk_election_port_1 }}:2888 \
+  -p {{ zk_election_port_2 }}:3888 \
+  -v {{ zk_conf_dir }}:{{ zk_conf_dir }} \
+  -v {{ zk_data_dir }}:{{ zk_data_dir }} \
+  -v {{ zk_log_dir }}:{{ zk_log_dir }} \
+  -v {{ zk_tmp_dir }}:{{ zk_tmp_dir }} \
+  {{ zk_docker_image }}
+ExecStop=/usr/bin/docker stop zookeeper
+
+[Install]
+WantedBy=multi-user.target

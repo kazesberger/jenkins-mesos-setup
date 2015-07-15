@@ -1,0 +1,34 @@
+// ****************************
+// Default GRADLE Configuration
+// ****************************
+
+allprojects{
+
+	buildscript {
+		repositories {
+			mavenLocal()
+			maven {
+				url infonovaRepository
+				credentials {
+					username = mavenUser
+					password = mavenPassword
+				}
+			}
+		}
+	}
+
+	// add the maven local repository as well as the default
+	// infonova repository to the default repository configuration
+	repositories {
+		// Workaround GRADLE-2034
+		// mavenLocal()
+		maven {
+			url infonovaRepository
+			credentials {
+				username = mavenUser
+				password = mavenPassword
+			}
+		}
+	}
+
+}

@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<hudson>
+    <numExecutors>2</numExecutors>
+    <mode>NORMAL</mode>
+    <disableRememberMe>false</disableRememberMe>
+    <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$PatternProjectNamingStrategy">
+        <namePattern>^((?!_)([\w-\.]))+$</namePattern>
+        <description></description>
+        <forceExistingJobs>false</forceExistingJobs>
+    </projectNamingStrategy>
+    <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULLNAME}</workspaceDir>
+    <buildsDir>${JENKINS_HOME}/builds/${ITEM_FULL_NAME}</buildsDir>
+    <systemMessage>INFONOVA JENKINS CLOUD ENVIRONMENT</systemMessage>
+    <markupFormatter class="hudson.markup.ModifiedRawHtmlMarkupFormatter"
+                     plugin="antisamy-markup-formatter@1.2-INFONOVA-1">
+        <disableSyntaxHighlighting>false</disableSyntaxHighlighting>
+    </markupFormatter>
+    <jdks>
+        <jdk>
+            <name>JDK6u45_Mesos</name>
+            <home>/home/jenkins/tools/hudson.model.JDK/JDK6</home>
+            <properties/>
+        </jdk>
+        <jdk>
+            <name>JDK7u71_Mesos</name>
+            <home>/home/jenkins/tools/hudson.model.JDK/JDK7</home>
+            <properties>
+                <hudson.tools.InstallSourceProperty>
+                    <installers/>
+                </hudson.tools.InstallSourceProperty>
+            </properties>
+        </jdk>
+        <jdk>
+            <name>JDK8u25_Mesos</name>
+            <home>/home/jenkins/tools/hudson.model.JDK/JDK8</home>
+            <properties>
+                <hudson.tools.InstallSourceProperty>
+                    <installers/>
+                </hudson.tools.InstallSourceProperty>
+            </properties>
+        </jdk>
+    </jdks>
+    <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+    <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+    <quietPeriod>0</quietPeriod>
+    <scmCheckoutRetryCount>2</scmCheckoutRetryCount>
+    <slaveAgentPort>4002</slaveAgentPort>
+    <nodeProperties/>
+    <globalNodeProperties>
+        <hudson.slaves.EnvironmentVariablesNodeProperty>
+            <envVars serialization="custom">
+                <unserializable-parents/>
+                <tree-map>
+                    <default>
+                        <comparator class="hudson.util.CaseInsensitiveComparator"/>
+                    </default>
+                    <int>1</int>
+                    <string>MASTER_JENKINS_FQDN</string>
+                    <string>{{hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address']}}</string>
+                </tree-map>
+            </envVars>
+        </hudson.slaves.EnvironmentVariablesNodeProperty>
+    </globalNodeProperties>
+    <noUsageStatistics>true</noUsageStatistics>
+    {% include "mesoscloud.j2.xml" %}
+</hudson>

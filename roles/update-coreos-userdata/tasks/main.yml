@@ -1,0 +1,103 @@
+---
+# file: create-nodes/tasks/libvirt.yml
+
+- name: "libvirt - check if node is running"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  virt:
+    name="{{ inventory_hostname }}"
+    command="status"
+  ignore_errors: "true"
+  register: node_status
+  failed_when: "node_status | failed or node_status.status != 'running'"
+  changed_when: "false"
+  tags: "bootstrap"
+
+- name: "libvirt - stop mesos-slave-service"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  service:
+    name="mesos-slave.service"
+    state="stopped"
+  when: '"slave" in mesos_install_mode and not node_status.failed and node_status.status == "running"'
+
+- name: "libvirt - wait for jenkins-slaves to finish"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  raw: /usr/bin/docker ps | /usr/bin/grep -q jenkins-slave
+  register: running_jenkins_slaves
+  until: running_jenkins_slaves.rc == 1
+  retries: 1000
+  delay: 60
+  when: '"slave" in mesos_install_mode and not node_status.failed and node_status.status == "running"'
+  ignore_errors: "true"
+
+
+- name: "libvirt - shutdown node"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  virt:
+    name="{{ inventory_hostname }}"
+    command="shutdown"
+  when: node_status.failed != true
+
+- name: "libvirt - wait for node to stop"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  virt:
+    name="{{ inventory_hostname }}"
+    command="status"
+  register: current_node_status
+  until: current_node_status.status == 'shutdown'
+  retries: 50
+  delay: 10
+  when: node_status.failed != true
+
+- name: "libvirt - ensure config dir exists"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  file:
+    dest="{{ item }}"
+    state="directory"
+    recurse="true"
+  with_items:
+  - "{{ hostvars[vm_host].config_dir }}"
+
+- name: "libvirt - ensure configdrive tmp dir exists"
+  local_action: "file dest='/tmp/{{ inventory_hostname }}-configdrive/openstack/latest' state='directory' recurse='true'"
+
+- name: "libvirt - copy cloud config to configdrive tmp dir"
+  local_action: "template src='libvirt/user_data.j2' dest='/tmp/{{ inventory_hostname }}-configdrive/openstack/latest/user_data'"
+
+- name: "libvirt - make configdrive iso"
+  local_action: "command mkisofs -R -V config-2 -o /tmp/{{ inventory_hostname }}-configdrive.iso /tmp/{{ inventory_hostname }}-configdrive"
+
+- name: "libvirt - copy configdrive iso to vm host"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  copy:
+    src="/tmp/{{ inventory_hostname }}-configdrive.iso"
+    dest="{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}-configdrive.iso"
+
+- name: "libvirt - start node"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: sudo
+  virt:
+    name="{{ inventory_hostname }}"
+    command=start
+  tags: "bootstrap"
+  when: node_status.failed != true

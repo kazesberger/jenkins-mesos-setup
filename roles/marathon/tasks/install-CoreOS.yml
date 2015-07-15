@@ -1,0 +1,24 @@
+---
+# file: marathon/tasks/install-CoreOS.yml
+# Installs Marathon on CoreOS
+
+
+- name: "deploy marathon systemd configuration"
+  template:
+    src="marathon.service.j2"
+    dest="/etc/systemd/system/marathon.service"
+  become: "true"
+  become_user: root
+  tags: "deploy"
+  notify:
+  - reload systemctl daemon
+  - restart marathon service
+
+- name: "check status of marathon service"
+  command: "systemctl status marathon.service"
+  tags: "deploy"
+  register: marathon_status
+  changed_when: marathon_status.rc != 0
+  failed_when: False
+  notify:
+  - restart marathon service

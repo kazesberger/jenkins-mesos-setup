@@ -1,0 +1,76 @@
+---
+# installs jenkins on coreos as docker container
+- name: "stop jenkins service if exists"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} jenkins.service"
+  with_items:
+  - stop
+  ignore_errors: True
+
+- name: "create jenkins logging directories"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ item }}"
+    state="directory"
+    owner="jenkins"
+    group="jenkins"
+  with_items:
+  - "{{ jenkins_home_host }}"
+  - "/var/log/jenkins"
+
+- name: "copy libmesos"
+  become: "true"
+  become_user: root
+  copy: src="libmesos-0.21.1.so" dest="{{ jenkins_home_host }}" owner=jenkins group=jenkins mode=0644
+
+- name: "generate Jenkins config.xml"
+  become: "true"
+  become_user: root
+  template: src=config.j2.xml dest={{ jenkins_home_host }}/config.xml owner=jenkins group=jenkins mode=0644
+
+- name: "copy plugin configurations"
+  become: "true"
+  become_user: root
+  copy: src="{{ item }}" dest="{{ jenkins_home_host }}" directory_mode=yes owner=jenkins group=jenkins mode=0644
+  with_fileglob:
+   - "config/*"
+
+- name: "copy plugin template configurations"
+  become: "true"
+  become_user: root
+  template: src="{{ item }}" dest="{{ jenkins_home_host }}" directory_mode=yes owner=jenkins group=jenkins mode=0644
+  with_fileglob:
+   - "config_templates/*"
+
+- name: "create local plugins folder"
+  local_action: file
+    dest="{{ local_plugins_location }}"
+    state="directory"
+
+- name: "download plugins from nexus"
+  include: get-mvn-artifacts.yml mvn_artifacts="{{ plugins }}" mvn_dest="{{ local_plugins_location }}"
+
+- name: "copy plugins to remote host"
+  become: "true"
+  become_user: root
+  copy: src="{{ local_plugins_location }}" dest="{{ jenkins_home_host }}" owner=jenkins group=jenkins mode=0644
+
+- name: "deploy jenkins systemd configuration"
+  become: "true"
+  become_user: root
+  template:
+    src="jenkins.service.j2"
+    dest="/etc/systemd/system/jenkins.service"
+  notify:
+  - reload systemctl daemon
+
+- name: "check status of jenkins service"
+  command: "systemctl status jenkins.service"
+  register: jenkins_status
+  changed_when: jenkins_status.rc != 0
+  failed_when: False
+  notify:
+  - restart jenkins service
+

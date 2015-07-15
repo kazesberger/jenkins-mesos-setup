@@ -1,0 +1,32 @@
+---
+# file: update-config/tasks/ssh-config.yml
+
+- name: "ssh-config - check if .ssh dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ jenkins_home }}/.ssh"
+    mode="700"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="directory"
+
+- name: "ssh-config - copy general .ssh config"
+  become: "true"
+  become_user: root
+  copy:
+    src="ssh/"
+    dest="{{ jenkins_home }}/.ssh"
+    mode="644"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+
+- name: "ssh-config - update ssh private key"
+  become: "true"
+  become_user: root
+  template:
+    src="ssh/id_rsa.j2"
+    dest="{{ jenkins_home }}/.ssh/id_rsa"
+    mode="600"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"

@@ -1,0 +1,24 @@
+mavenUser=et_jenkins
+mavenPassword={{ et_jenkins_secret }}
+infonovaRepository=http://grzmvn01.infonova.at:8082/nexus/content/groups/public/
+iseReleaseRepository=http://grzmvn01.infonova.at:8082/nexus/content/repositories/ise-releases/
+iseSnapshotRepository=http://grzmvn01.infonova.at:8082/nexus/content/repositories/ise-snapshots/
+
+## *********************
+## *  TEST PROPERTIES  *
+## *********************
+
+# JVM Settings
+systemProp.test.minHeapSize=512m
+systemProp.test.maxHeapSize=2g
+systemProp.test.jvmArgs=-XX:MaxPermSize=512m
+
+# Profile Settings
+systemProp.test.activeDatabaseProfile=oracle
+systemProp.test.activeSixDatabaseProfile=six-oracle
+systemProp.test.activeIntegrationtestProfile=Standard
+
+# DB Driver Settings
+systemProp.test.dbdriver.oracle10=oracle.jdbc.OracleDriver
+systemProp.test.dbdriver.mssql2005=com.microsoft.sqlserver.jdbc.SQLServerDriver
+systemProp.test.dbdriver.mssql2008=com.microsoft.sqlserver.jdbc.SQLServerDriver

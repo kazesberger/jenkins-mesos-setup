@@ -1,0 +1,75 @@
+---
+# file: group_vars/mesosnodes.yml
+
+system_pub_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+vm_dns:
+  # replace with your dns
+  - 8.8.8.8
+vm_search_domains:
+  - "company.com"
+vm_domain: "company.com"
+
+vm_base_img_size: "10G"
+
+#vm_additional_etc_hosts_entries:
+#  - { ip: "<someIP", main_hostname: "server.company.com", alt_hostnames: "service.company.com service" }
+
+jenkins_user: "jenkins"
+jenkins_home: "/home/jenkins"
+jenkins_uid: "666"
+
+config_path_maven:  "{{ jenkins_home }}/config/maven"
+config_path_gradle: "{{ jenkins_home }}/config/gradle"
+config_path_oracle: "{{ jenkins_home }}/config/oracle"
+config_path_mssql:  "{{ jenkins_home }}/config/mssql"
+config_path_misc:   "{{ jenkins_home }}/config/misc"
+
+mesos_version: "0.21.1"
+mesos_user: "mesos"
+mesos_cluster_name: "jenkins-slaves-cluster"
+
+zk_base_url: "zk://{% for server in groups['zookeeper_hosts'] %}{{hostvars[server]['ansible_eth0']['ipv4']['address']}}:{{ hostvars[server]['zk_client_port'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+mesos_zk_url: "{{ zk_base_url }}/{{ mesos_cluster_name }}"
+mesos_master_docker_image: "mesosphere/mesos-master:{{ mesos_version }}-1.1.ubuntu1404"
+mesos_master_work_dir: "/var/lib/mesos/master"
+mesos_master_log_dir: "/var/log/mesos/master"
+mesos_master_quorum: "{{ (groups['zookeeper_hosts'] | length / 2 + 1) | int }}"
+mesos_options:
+  - "--ip={{hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address']}}"
+  - "--logging_level=INFO"
+mesos_master_options:
+  - "--port={{ mesos_master_port }}"
+  - "--registry=replicated_log"
+  - "--quorum={{ mesos_master_quorum }}"
+  - "--zk={{ mesos_zk_url }}"
+  - "--cluster={{ mesos_cluster_name }}"
+  - "--log_dir={{ mesos_master_log_dir }}"
+  - "--work_dir={{ mesos_master_work_dir }}"
+mesos_slave_docker_image: "mesosphere/mesos-slave:{{ mesos_version }}-1.1.ubuntu1404"
+mesos_slave_log_dir: "/var/log/mesos/slave"
+mesos_slave_work_dir: "/var/lib/mesos/slave"
+mesos_slave_options:
+  - "--port={{ mesos_slave_port }}"
+  - "--docker_stop_timeout=2secs"
+  - "--master={{ mesos_zk_url }}"
+  - "--containerizers=docker"
+  - "--executor_registration_timeout=10mins"
+  - "--recover=reconnect"
+  - "--resources={{ mesos_slave_resources }}"
+  - "--log_dir={{ mesos_slave_log_dir }}"
+  - "--work_dir={{ mesos_slave_work_dir }}"
+  - "--executor_shutdown_grace_period=600mins"
+  - "--docker_remove_delay=30mins"
+
+marathon_version: "0.8.0"
+marathon_docker_image: "mesosphere/marathon:v{{ marathon_version }}"
+marathon_zk_url: "{{ zk_base_url }}/marathon"
+marathon_libprocess_port: "9090"
+marathon_http_port: "8080"
+marathon_options:
+  - "--ha"
+  - "--master {{ mesos_zk_url }}"
+  - "--zk {{ marathon_zk_url }}"
+  - "--task_launch_timeout 300000"
+  - "--http_port {{ marathon_http_port }}"

@@ -1,0 +1,4 @@
+---
+# file: marathon/defaults/main.yml
+
+docker_net_mode: "host"

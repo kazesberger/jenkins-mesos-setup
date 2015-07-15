@@ -1,0 +1,10 @@
+---
+# file: update-config/tasks/ssh-keys.yml
+
+- name: "ssh-keys - copy public keys to .ssh/authorized_keys.d/"
+  copy:
+    src="ssh-keys/"
+    dest="~/.ssh/authorized_keys.d/"
+    mode="644"
+  notify:
+  - update ssh keys

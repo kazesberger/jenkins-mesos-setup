@@ -1,0 +1,4 @@
+---
+# file: mesos/defaults/main.yml
+
+docker_net_mode: "host"

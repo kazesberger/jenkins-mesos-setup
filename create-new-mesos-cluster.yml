@@ -1,0 +1,18 @@
+---
+# file: main.yml
+# do something
+
+- name: "a play that installs mesos"
+  hosts: "mesosnodes"
+  gather_facts: "true"
+  max_fail_percentage: 0
+  serial: 1
+
+  handlers:
+  - include: handlers/main.yml
+
+  roles:
+  - update-config
+  - zookeeper
+  - mesos
+  - marathon

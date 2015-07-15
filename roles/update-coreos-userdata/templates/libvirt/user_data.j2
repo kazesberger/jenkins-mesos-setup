@@ -1,0 +1,229 @@
+#cloud-config
+ssh_authorized_keys:
+  - {{ system_pub_key }}
+{% if additional_pub_keys is defined %}
+{% for pub_key in additional_pub_keys %}
+  - {{ pub_key }}
+{% endfor %}
+{% endif %}
+
+hostname: {{ inventory_hostname }}
+
+write-files:
+  - path: /etc/hosts
+    permissions: '0644'
+    content: |
+    {% for item in groups['mesosnodes'] %}
+      {{ hostvars[item]['vm_ip'] }}    {{ hostvars[item]['inventory_hostname'] + '.' + vm_domain }} {{ hostvars[item]['inventory_hostname'] }}
+    {% endfor %}
+    {% for item in vm_additional_etc_hosts_entries %}
+      {{ item.ip }}    {{ item.main_hostname }} {{ item.alt_hostnames }}
+    {% endfor %}
+
+  - path: /etc/ntp.conf
+    content: |
+      # Common pool
+      server ntp1.company.com
+      server ntp2.company.com
+
+      # Permit time synchronization with our time source, but do not
+      # permit the source to query or modify the service on this system.
+      restrict default kod nomodify notrap nopeer noquery
+      restrict -6 default kod nomodify notrap nopeer noquery
+
+      # Permit all access over the loopback interface.  This could
+      # be tightened as well, but to do so would effect some of
+      # the administrative functions.
+      restrict 127.0.0.1
+      restrict -6 ::1
+
+  - path: /etc/conf.d/nfs
+    permissions: '0644'
+    content: |
+      OPTS_RPC_MOUNTD=""
+
+  - path: /etc/systemd/system/docker.service.d/increase-ulimit.conf
+    owner: core:core
+    permissions: '0644'
+    content: |
+      [Service]
+      LimitMEMLOCK=infinity
+      LimitSTACK=infinity
+      LimitLOCKS=infinity
+
+{% if  hostvars[vm_host].storage_type == "lv" %}
+  - path: /etc/systemd/system/docker.service.d/requires.conf
+    owner: core:core
+    permissions: '0644'
+    content: |
+      [Unit]
+      Requires=var-lib-docker.mount
+      Requires=mnt-workspaces.mount
+      After=var-lib-docker.mount
+      After=mnt-workspaces.mount
+{% endif %}
+
+coreos:
+  etcd2:
+    discovery: {{ discovery_url }}
+    advertise-client-urls: http://{{ vm_ip }}:2379
+    initial-advertise-peer-urls: http://{{ vm_ip }}:2380
+    listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+    listen-peer-urls: http://0.0.0.0:2380
+
+  update:
+    reboot-strategy: off
+  fleet:
+    public-ip: {{ vm_ip }}
+  units:
+    - name: settimezone.service
+      command: start
+      content: |
+        [Unit]
+        Description=Set the timezone
+
+        [Service]
+        ExecStart=/usr/bin/timedatectl set-timezone Europe/Vienna
+        RemainAfterExit=yes
+        Type=oneshot
+
+    - name: 00-static.network
+      runtime: false
+      content: |
+        [Match]
+        MACAddress={{ vm_mac }}
+
+        [Network]
+        Address={{ vm_ip }}/24
+        Gateway={{ vm_gateway }}
+        Domains={{ vm_search_domains | join(' ') }}
+        DNS={{ vm_dns | join(' ') }}
+
+    - name: etcd2.service
+      command: start
+
+    - name: docker.service
+      enable: true
+      command: start
+
+    - name: fleet.service
+      command: start
+
+    - name: docker-tcp.socket
+      command: start
+      enable: true
+      content: |
+        [Unit]
+        Description=Docker Socket for the API
+
+        [Socket]
+        ListenStream=2375
+        Service=docker.service
+        BindIPv6Only=both
+
+        [Install]
+        WantedBy=sockets.target
+
+    - name: rpc-statd.service
+      command: start
+      enable: true
+
+    - name: mnt-workspaceshare.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount workspaceshare to /mnt/workspaceshare
+        Requires=rpc-statd.service
+        After=rpc-statd.service
+        Before=docker.service
+        [Mount]
+        What=nfs-ws.company.com:/srv/nfs/workspaceshare
+        Where=/mnt/workspaceshare
+        Type=nfs
+
+{% if  hostvars[vm_host].storage_type == "lv" %}
+    # TODO make this configurable in config (multiple drives possible)
+    - name: format-docker-drive.service
+      command: start
+      content: |
+       [Unit]
+       Description=Formats the Docker drive
+       [Service]
+       Type=oneshot
+       RemainAfterExit=yes
+       ExecStart=/usr/sbin/wipefs -f /dev/vdb
+       ExecStart=/usr/sbin/mkfs.btrfs -f /dev/vdb
+
+    - name: format-mnt-workspaces-drive.service
+      command: start
+      content: |
+       [Unit]
+       Description=Formats the workspaces drive
+       [Service]
+       Type=oneshot
+       RemainAfterExit=yes
+       ExecStart=/usr/sbin/wipefs -f /dev/vdc
+       ExecStart=/usr/sbin/mkfs.ext2 /dev/vdc
+
+    - name: var-lib-docker.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount Ext drive to /var/lib/docker
+        Requires=format-docker-drive.service
+        After=format-docker-drive.service
+        Before=docker.service
+        [Mount]
+        What=/dev/vdb
+        Where=/var/lib/docker
+        Type=btrfs
+
+    - name: mnt-workspaces.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount opt drive to /mnt/workspaces
+        Requires=format-mnt-workspaces-drive.service
+        After=format-mnt-workspaces-drive.service
+        Before=chown-mnt-workspaces.service
+        [Mount]
+        What=/dev/vdc
+        Where=/mnt/workspaces
+        Type=ext4
+
+    - name: chown-mnt-workspaces.service
+      command: start
+      content: |
+       [Unit]
+       Description=Changes ownership to /mnt/workspaces
+       Requires=mnt-workspaces.mount
+       After=mnt-workspaces.mount
+       Before=docker.service
+       [Service]
+       Type=oneshot
+       RemainAfterExit=yes
+       ExecStart=/usr/bin/chown -R 666:666 /mnt/workspaces
+       ExecStart=/usr/bin/mkdir -p /opt
+       ExecStart=/usr/bin/ln -s /mnt/workspaces /opt/workspacetest
+
+    - name: swap.service
+      command: start
+      content: |
+       [Unit]
+       Description=Turn on swap
+       Requires=mnt-workspaces.mount
+       After=mnt-workspaces.mount
+       Before=docker.service
+       [Service]
+       Type=oneshot
+       Environment="SWAPFILE=/mnt/workspaces/coreos-2Gig.swap"
+       RemainAfterExit=yes
+       ExecStart=/usr/bin/dd if=/dev/zero of=${SWAPFILE} bs=1024 count=2097152
+       ExecStart=/usr/bin/chmod 600 ${SWAPFILE}
+       ExecStart=/usr/sbin/mkswap ${SWAPFILE}
+       ExecStart=/usr/sbin/losetup -f ${SWAPFILE}
+       ExecStart=/usr/bin/sh -c "/sbin/swapon $(/usr/sbin/losetup -j ${SWAPFILE} | /usr/bin/cut -d : -f 1)"
+       ExecStop=/usr/bin/sh -c "/sbin/swapoff $(/usr/sbin/losetup -j ${SWAPFILE} | /usr/bin/cut -d : -f 1)"
+       ExecStop=/usr/bin/sh -c "/usr/sbin/losetup -d $(/usr/sbin/losetup -j ${SWAPFILE} | /usr/bin/cut -d : -f 1)"
+       ExecStopPost=/usr/bin/rm -f ${SWAPFILE}
+{% endif %}

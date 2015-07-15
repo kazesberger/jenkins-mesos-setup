@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+
+    <groupId>com.infonva.opss.devopps</groupId>
+    <artifactId>mesosnodes-ansible</artifactId>
+    <version>1.1-SNAPSHOT</version>
+
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.jolokia</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.13.0</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <autoPull>true</autoPull>
+                    <registry>grzcidocker01.infonova.at</registry>
+                    <images>
+                        <image>
+                            <name>grzcidocker01.infonova.at/admin/${project.artifactId}:${project.version}</name>
+                            <build>
+                                <assembly>
+                                    <mode>zip</mode>
+                                    <dockerFileDir>${project.basedir}</dockerFileDir>
+                                    <descriptor>${project.basedir}/assembly.xml</descriptor>
+                                </assembly>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>install-docker</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>deploy-docker</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>

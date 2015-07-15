@@ -1,0 +1,7 @@
+---
+# file: requirements.yml
+# Requirements for running the playbook
+
+# from github installing to a relative path
+- src:  https://github.com/AnsibleShipyard/ansible-coreos-bootstrap.git
+  name: bootstrap

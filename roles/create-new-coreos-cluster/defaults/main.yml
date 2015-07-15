@@ -1,0 +1,21 @@
+---
+
+# openstack
+os_username: "devopss_delivery"
+os_password: "{{ your_service_user_secret }}"
+os_tenant: "devopss"
+os_coreos_imageid: "52115f07-11c2-43e6-8131-ea69984f2e82"
+os_auth_url: "http://openstack.company.com:35357/v2.0"
+os_net_id: "9565dc7a-fade-4180-b985-53b10bfa81cb"
+os_security_groups: "default,coreos"
+#vm_name: ""
+#vm_flavor_ram: "2048"
+vm_ip: "10.1.80.101"
+
+vm_base_img_size: "10G"
+
+vm_search_domains:
+  - "company.com"
+
+vm_domain: "company.com"
+

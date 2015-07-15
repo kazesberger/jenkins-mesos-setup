@@ -1,0 +1,20 @@
+---
+#- name: download plugins from nexus
+#  local_action: get_url
+#    url="{{ nexus_repository }}{{ item.groupId | replace('.', '/') }}/{{ item.artifactId }}/{{ item.version }}/{{ item.artifactId }}-{{ item.version }}.{{ item.packaging }}"
+#    dest="{{ mvn_dest }}/{{ item.finalName }}"
+#    url_username="{{ nexus_user }}"
+#    url_password="{{ nexus_password }}"
+#
+#  with_items: mvn_artifacts
+
+- name: download artifacts
+  local_action: command mvn org.apache.maven.plugins:maven-dependency-plugin:2.10:get
+    -DartifactId={{ item.artifactId }}
+    -DgroupId={{ item.groupId }}
+    -Dversion={{ item.version }}
+    -Dpackaging={{ item.packaging }}
+    -Dclassifier={{ item.classifier }}
+    -Ddest="{{ mvn_dest }}/{{ item.finalName }}"
+    -Dtransitive="false"
+  with_items: mvn_artifacts

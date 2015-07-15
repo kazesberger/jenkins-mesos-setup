@@ -1,0 +1,33 @@
+[mesosnodes]
+mesosnode01 ansible_ssh_host="172.17.8.101" vm_ip="172.17.8.101" vm_mac="52:54:00:99:a2:61" mesos_install_mode="master-slave" ansible_ssh_port=2203
+mesosnode02 ansible_ssh_host="172.17.8.102" vm_ip="172.17.8.102" vm_mac="52:54:00:99:a2:62" mesos_install_mode="master-slave" ansible_ssh_port=2201
+mesosnode03 ansible_ssh_host="172.17.8.103" vm_ip="172.17.8.103" vm_mac="52:54:00:99:a2:63" mesos_install_mode="master-slave" ansible_ssh_port=2201
+mesosnode04 ansible_ssh_host="172.17.8.104" vm_ip="172.17.8.104" vm_mac="52:54:00:99:a2:64" mesos_install_mode="slave" ansible_ssh_port=2222
+
+[mesosnodes:vars]
+discovery_url="https://discovery.etcd.io/1a514e0503b9468f9d60c09da0a98ae2"
+vm_host="localhost"
+vm_memory="1024"
+vm_cpus="1"
+vm_gateway="172.17.8.1"
+update_etc_hosts="true"
+ansible_ssh_user="core"
+ansible_ssh_private_key_file="/home/seder/.vagrant.d/insecure_private_key"
+ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
+mesos_slave_resources="cpus:1;mem:128;ports:[8000-9000]"
+mesos_slave_port="5051"
+mesos_master_port="5050"
+
+[zookeeper_hosts]
+mesosnode01 zoo_id="1"
+mesosnode02 zoo_id="2"
+mesosnode03 zoo_id="3"
+
+[zookeeper_hosts:vars]
+zk_client_port="2181"
+zk_election_port_1="2888"
+zk_election_port_2="3888"
+
+# config for spinup-mesosnodes.yml
+[vm_hosts]
+localhost ansible_connection="local" prov_type="vagrant" config_dir="/tmp/vm-config"

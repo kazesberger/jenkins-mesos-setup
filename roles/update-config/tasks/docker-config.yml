@@ -1,0 +1,36 @@
+---
+# file: update-config/tasks/docker-config.yml
+
+- name: "docker-config - update /root/.dockercfg"
+  become: "true"
+  become_user: root
+  template:
+    src="docker/dockercfg.j2"
+    dest="/root/.dockercfg"
+    mode="600"
+
+- name: "docker-config - check if certificate dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="/etc/docker/certs.d/grzcidocker01.infonova.at"
+    state="directory"
+    recurse="true"
+
+- name: "docker-config - certificate"
+  become: "true"
+  become_user: root
+  copy:
+    src="docker/grzcidocker01.infonova.at.ca.crt"
+    dest="/etc/docker/certs.d/grzcidocker01.infonova.at/ca.crt"
+
+- name: "docker-config - update other .dockercfg"
+  become: "true"
+  become_user: root
+  template:
+    src="docker/dockercfg.j2"
+    dest="{{ jenkins_home }}/.dockercfg"
+    mode="600"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+  when: '"slave" in mesos_install_mode'

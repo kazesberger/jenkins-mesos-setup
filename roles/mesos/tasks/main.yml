@@ -1,0 +1,55 @@
+---
+# file: mesos/tasks/main.yml
+# Installs Mesos on CoreOS
+- name: gather facts
+  setup:
+    filter: 'ansible_eth0'
+
+- name: "create user for mesos"
+  user:
+    name="{{ mesos_user }}"
+    uid="502"
+    createhome="no"
+    system="yes"
+    shell="/sbin/nologin"
+  become: "true"
+  become_user: root
+  tags: "bootstrap"
+
+- name: copy etcd discovery utility script wait_for_down_services.sh
+  become: True
+  become_user: root
+  copy:
+    src: wait_for_down_services.sh
+    dest: /home/core/bin/wait_for_down_services.sh
+    owner: "{{ mesos_user }}"
+    mode: u+rwx
+
+- name: copy wait_for_jenkins_slaves_finished.sh
+  become: True
+  become_user: root
+  copy:
+    src: wait_for_jenkins_slaves_finished.sh
+    dest: /home/core/bin/wait_for_jenkins_slaves_finished.sh
+    owner: "{{ mesos_user }}"
+    mode: u+rwx
+
+- name: register mesos master service installed (boolean)
+  stat: path="/etc/systemd/system/mesos-master.service"
+  register: mesos_master_service_installed
+
+- name: register mesos slave service installed (boolean)
+  stat: path="/etc/systemd/system/mesos-slave.service"
+  register: mesos_slave_service_installed
+
+- include: "install-master-CoreOS.yml"
+  when: "'master' in mesos_install_mode"
+
+- include: "install-slave-CoreOS.yml"
+  when: "'slave' in mesos_install_mode"
+
+- include: "uninstall-master-CoreOS.yml"
+  when: "{{ mesos_master_service_installed.stat.exists }} and 'master' not in mesos_install_mode"
+
+- include: "uninstall-slave-CoreOS.yml"
+  when:  "{{ mesos_slave_service_installed.stat.exists }} and 'slave' not in mesos_install_mode"

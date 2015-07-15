@@ -1,0 +1,36 @@
+---
+# file: mesos/tasks/uninstall-master-CoreOS.yml
+# Removes Mesos Master on CoreOS
+
+- name: stop and disable mesos master service
+  become: "true"
+  become_user: root
+  service:
+    name="mesos-master.service"
+    enabled="no"
+    state="stopped"
+
+- name: remove mesos master systemd configuration
+  file:
+    dest="/etc/systemd/system/mesos-master.service"
+    state="absent"
+  become: "true"
+  become_user: root
+  notify:
+  - reload systemctl daemon
+
+- name: remove mesos master docker container
+  command: "/usr/bin/docker rm -f mesos_master"
+
+- name: remove mesos master docker image
+  command: "/usr/bin/docker rmi -f {{ mesos_master_docker_image }}"
+
+- name: remove mesos master directories
+  file:
+    dest="{{ item }}"
+    state="absent"
+  become: "true"
+  become_user: root
+  with_items:
+  - "{{ mesos_master_work_dir }}"
+  - "{{ mesos_master_log_dir }}"

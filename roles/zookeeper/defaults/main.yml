@@ -1,0 +1,5 @@
+---
+# file: zookeeper/defaults/main.yml
+
+docker_net_mode: "host"
+zk_log_level: "DEBUG"

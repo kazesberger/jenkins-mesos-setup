@@ -1,0 +1,9 @@
+# Add known hosts to this file
+#
+# Primary add external hosts to this file, which are not changed every now and
+# then and need serious host key checking (like production servers or OATs and
+# UATs).
+#
+# For internal servers which are suspected to change periodically, add an
+# exception in the ".ssh/config" file.
+#

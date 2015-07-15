@@ -1,0 +1,33 @@
+---
+# file: mesos/tasks/uninstall-slave-CoreOS.yml
+# Removes Mesos Slave on CoreOS
+
+- name: stop and disable mesos slave service
+  sudo: "true"
+  service:
+    name="mesos-slave.service"
+    enabled="no"
+    state="stopped"
+
+- name: remove mesos slave systemd configuration
+  file:
+    dest="/etc/systemd/system/mesos-slave.service"
+    state="absent"
+  sudo: "true"
+  notify:
+  - reload systemctl daemon
+
+- name: remove mesos slave docker container
+  command: "/usr/bin/docker rm mesos_slave"
+
+- name: remove meso slave docker image
+  command: "/usr/bin/docker rmi {{ mesos_slave_docker_image }}"
+
+- name: remove mesos slave directories
+  file:
+    dest="{{ item }}"
+    state="absent"
+  sudo: "true"
+  with_items:
+  - "{{ mesos_slave_work_dir }}"
+  - "{{ mesos_slave_log_dir }}"

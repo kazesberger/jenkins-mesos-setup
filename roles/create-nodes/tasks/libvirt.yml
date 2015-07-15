@@ -1,0 +1,64 @@
+---
+# file: create-nodes/tasks/libvirt.yml
+
+- name: "libvirt - check if node is running"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: su
+  virt:
+    name="{{ inventory_hostname }}"
+    command="status"
+  ignore_errors: "true"
+  register: node_status
+  failed_when: "node_status | failed or node_status.status != 'running'"
+  changed_when: "false"
+  tags: "bootstrap"
+
+- name: "libvirt - stat CoreOs image"
+  run_once: "true"
+  local_action: "command stat /tmp/coreos_production_qemu_image.img"
+  ignore_errors: "true"
+  register: image_status
+  changed_when: image_status | failed
+
+- name: "libvirt - download CoreOS image"
+  run_once: "true"
+  local_action: "get_url url='http://stable.release.core-os.net/amd64-usr/current/coreos_production_qemu_image.img.bz2' dest='/tmp/coreos_production_qemu_image.img.bz2'"
+  when: image_status | failed
+
+- name: "libvirt - unarchive CoreOS image"
+  run_once: "true"
+  local_action: "command bunzip2 --keep /tmp/coreos_production_qemu_image.img.bz2"
+  when: image_status | failed
+
+- name: "libvirt - set size of CoreOS image"
+  run_once: "true"
+  local_action: "command qemu-img resize /tmp/coreos_production_qemu_image.img {{ vm_base_img_size }}"
+
+- include: "libvirt-img.yml"
+  when: node_status | failed and hostvars[vm_host].storage_type == "img"
+
+- include : "libvirt-lv.yml"
+  when: node_status | failed and hostvars[vm_host].storage_type == "lv"
+
+- name: "libvirt - define node"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: su
+  virt:
+    name="{{ inventory_hostname }}"
+    command="define"
+    xml="{{ lookup('template', '../templates/libvirt/coreos-node-config.xml.j2') }}"
+  when: "node_status | failed"
+
+- name: "libvirt - start node"
+  delegate_to: "{{ vm_host }}"
+  become: "true"
+  become_user: root
+  become_method: su
+  virt:
+    name="{{ inventory_hostname }}"
+    state="running"
+  tags: "bootstrap"

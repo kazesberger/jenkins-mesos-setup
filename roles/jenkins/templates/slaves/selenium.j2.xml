@@ -1,0 +1,96 @@
+{% for slaveinfo in slaveinfos %}
+  {% if slaveinfo.type == "selenium" %}
+<org.jenkinsci.plugins.mesos.MesosSlaveInfo>
+    <slaveCpus>{{ slaveinfo.cpus / 2 }}</slaveCpus>
+    <slaveMem>{{'%0.0f'| format(slaveinfo.memory * 0.6 |float)}}</slaveMem>
+    <executorCpus>{{ slaveinfo.cpus / 2 }}</executorCpus>
+    <maxExecutors>1</maxExecutors>
+    <executorMem>{{'%0.0f'| format(slaveinfo.memory * 0.4 |float)}}</executorMem>
+    <remoteFSRoot>/home/jenkins</remoteFSRoot>
+    <idleTerminationMinutes>1</idleTerminationMinutes>
+    <jvmArgs>-Xms16m -XX:+UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true -Dhost.name=$HOSTNAME</jvmArgs>
+    <jnlpArgs>-noReconnect</jnlpArgs>
+    <containerInfo>
+        <type>DOCKER</type>
+        <dockerImage>grzcidocker01.infonova.at/infonova/jenkins-slave-selenium:3.3</dockerImage>
+        <volumes>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.m2</containerPath>
+                <hostPath>/home/jenkins/.m2</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.ssh</containerPath>
+                <hostPath>/home/jenkins/.ssh</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.gitconfig</containerPath>
+                <hostPath>/home/jenkins/.gitconfig</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/etc/localtime</containerPath>
+                <hostPath>/etc/localtime</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.gradle</containerPath>
+                <hostPath>/home/jenkins/.gradle</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/opt/env-properties/global-job-env.properties</containerPath>
+                <hostPath>/home/jenkins/config/misc/global-job-env.properties</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+        </volumes>
+        {% if slaveinfo.swap is defined %}
+        <parameters>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Parameter>
+                <key>memory-swap</key>
+                <value>{{ slaveinfo.swap }}</value>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Parameter>
+        </parameters>
+        {% endif %}
+        <networking>BRIDGE</networking>
+        <portMappings>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-PortMapping>
+                <containerPort>5901</containerPort>
+                <protocol>tcp</protocol>
+                <description>VNC</description>
+                <urlFormat>vnc://{hostname}?port={hostPort}&amp;password=selenium!1</urlFormat>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-PortMapping>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-PortMapping>
+                <containerPort>6080</containerPort>
+                <protocol>tcp</protocol>
+                <description>VNC Web Client</description>
+                <urlFormat>http://{hostname}:{hostPort}/vnc_auto.html?password=selenium!1</urlFormat>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-PortMapping>
+        </portMappings>
+        <dockerPrivilegedMode>false</dockerPrivilegedMode>
+    </containerInfo>
+    <additionalURIs>
+        <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-URI>
+            <value>/home/jenkins/.dockercfg</value>
+            <executable>false</executable>
+            <extract>false</extract>
+        </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-URI>
+    </additionalURIs>
+    <additionalCommands>
+        <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+            <value>./init.sh</value>
+        </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+    </additionalCommands>
+    <mode>EXCLUSIVE</mode>
+    <runAsUserInfo>
+        <username>jenkins</username>
+        <command>sudo -iu {USERNAME} {SLAVE_CMD}</command>
+    </runAsUserInfo>
+    <maxNodes>-1</maxNodes>
+    <connectionFailureThreshold>5</connectionFailureThreshold>
+    <mesosRetentionStrategy>org.jenkinsci.plugins.mesos.MesosUseSlaveOnceRetentionStrategy</mesosRetentionStrategy>
+    <labelString>{{ slaveinfo.label }}</labelString>
+</org.jenkinsci.plugins.mesos.MesosSlaveInfo>
+  {% endif %}
+{% endfor %}

@@ -1,0 +1,8 @@
+---
+# file: update-config/vars/secrets.yml
+
+# you should encrypt this file with ansible-vault
+
+your_service_user_secret:               "yourpassword"
+
+

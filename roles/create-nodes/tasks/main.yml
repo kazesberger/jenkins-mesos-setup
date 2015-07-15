@@ -1,0 +1,14 @@
+---
+# file: create-nodes/tasks/main.yml
+
+- include: "vagrant.yml"
+  delegate_to: "{{ vm_host }}"
+  when: hostvars[vm_host].prov_type == "vagrant"
+
+- include: "libvirt.yml"
+  delegate_to: "{{ vm_host }}"
+  when: hostvars[vm_host].prov_type == "libvirt"
+
+- name: "wait for node startup"
+  local_action: wait_for port=22 host="{{ vm_ip }}" search_regex=OpenSSH delay=5 timeout=60
+

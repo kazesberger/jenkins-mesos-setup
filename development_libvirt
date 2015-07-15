@@ -1,0 +1,48 @@
+[mesosnodes]
+devmesosnode01 ansible_ssh_host="172.17.9.101" vm_ip="172.17.9.101" vm_mac="52:54:00:99:a2:61" mesos_install_mode="master-slave"
+devmesosnode02 ansible_ssh_host="172.17.9.102" vm_ip="172.17.9.102" vm_mac="52:54:00:99:a2:62" mesos_install_mode="master-slave"
+devmesosnode03 ansible_ssh_host="172.17.9.103" vm_ip="172.17.9.103" vm_mac="52:54:00:99:a2:63" mesos_install_mode="master-slave"
+devmesosnode04 ansible_ssh_host="172.17.9.104" vm_ip="172.17.9.104" vm_mac="52:54:00:99:a2:64" mesos_install_mode="slave"
+#devmesosnode05 ansible_ssh_host="172.17.9.105" vm_ip="172.17.9.105" vm_mac="52:54:00:99:a2:65" mesos_install_mode="slave"
+
+[mesosnodes:vars]
+# execute 'curl -w "\n" https://discovery.etcd.io/new' when creating a new cluster
+discovery_url="https://discovery.etcd.io/8ef970bae77d823f8fafd722cedc2023"
+vm_host="localhost"
+vm_memory="512"
+vm_cpus="1"
+vm_gateway="172.17.9.1"
+update_etc_hosts="true"
+ansible_ssh_user="core"
+ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
+mesos_slave_resources="cpus:1;mem:500;ports:[8000-9000]"
+mesos_slave_port="5051"
+mesos_master_port="5050"
+#vm_ext_img_size="15G"
+
+[zookeeper_hosts]
+devmesosnode01 zoo_id="1"
+devmesosnode02 zoo_id="2"
+devmesosnode03 zoo_id="3"
+#devmesosnode04 zoo_id="4"
+#devmesosnode05 zoo_id="5"
+
+[zookeeper_hosts:vars]
+zk_client_port="2181"
+zk_election_port_1="2888"
+zk_election_port_2="3888"
+
+[vm_hosts]
+localhost
+
+[vm_hosts:vars]
+prov_type="libvirt"
+storage_type="img"
+config_dir="/var/lib/libvirt/images"
+bridge_name="virbr1"
+qemu_kvm_bin="/usr/bin/qemu-kvm"
+#volume_group="data_vg"
+#ansible_connection="local"
+
+[jenkins_master_hosts:vars]
+mesoscloud_master="zk://172.17.9.101:2181,172.17.9.102:2181,172.17.9.103:2181/jenkins-slaves-cluster"

@@ -1,0 +1,47 @@
+---
+# file: zookeeper/tasks/uninstall-CoreOS.yml
+# Removes Zookeeper on CoreOS
+
+- include_vars: "../../../group_vars/zookeeper_hosts"
+
+- name: stop and disable zookeeper service
+  become: "true"
+  become_user: root
+  service:
+    name="zookeeper.service"
+    enabled="no"
+    state="stopped"
+
+- name: remove zookeeper master systemd configuration
+  file:
+    dest="/etc/systemd/system/zookeeper.service"
+    state="absent"
+  become: "true"
+  become_user: root
+  notify:
+  - reload systemctl daemon
+
+- name: remove zookeeper docker container
+  command: "/usr/bin/docker rm zookeeper"
+
+- name: remove zookeeper docker image
+  command: "/usr/bin/docker rmi {{ zk_docker_image }}"
+
+- name: remove zookeeper directories
+  file:
+    dest="{{ item }}"
+    state="absent"
+  become: "true"
+  become_user: root
+  with_items:
+   - "{{ zk_conf_dir }}"
+   - "{{ zk_data_dir }}"
+   - "{{ zk_log_dir }}"
+   - "{{ zk_tmp_dir }}"
+
+- name: remove zookeeper user
+  user:
+    name="{{ zk_user }}"
+    state="absent"
+  become: "true"
+  become_user: root

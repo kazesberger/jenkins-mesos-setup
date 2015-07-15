@@ -1,0 +1,23 @@
+[Unit]
+Description=Jenkins
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill jenkins
+ExecStartPre=-/usr/bin/docker rm jenkins
+ExecStartPre=/usr/bin/docker pull {{ jenkins_docker_image }}:{{ jenkins_docker_version }}
+ExecStartPre=-/usr/bin/etcdctl rm /announce/services/stopped-jenkins/%H
+ExecStart=/usr/bin/docker run \
+  --name=jenkins \
+  --net={{ docker_net_mode }} \
+  -v {{ jenkins_home_host }}:{{ jenkins_home_container }} \
+  -v /var/log:/var/log \
+  {{ jenkins_docker_image }}:{{ jenkins_docker_version }}
+ExecStop=/usr/bin/docker stop jenkins
+
+[Install]
+WantedBy=multi-user.target

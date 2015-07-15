@@ -1,0 +1,21 @@
+<clouds>
+  <org.jenkinsci.plugins.mesos.MesosCloud plugin="mesos@0.6.0-INFONOVA-8">
+    <name>MesosCloud</name>
+    <nativeLibraryPath>{{ jenkins_home_container }}/libmesos-0.21.1.so</nativeLibraryPath>
+    <master>{{ mesoscloud_master }}</master>
+    <description></description>
+    <frameworkName>Infonova DevOpSS Slave Cluster</frameworkName>
+    <slavesUser></slavesUser>
+    <principal>jenkins</principal>
+    <secret></secret>
+    <checkpoint>false</checkpoint>
+    <onDemandRegistration>false</onDemandRegistration>
+    <alternativeJenkinsUrl>http://${MASTER_JENKINS_FQDN}:8080</alternativeJenkinsUrl>
+    <slaveInfos>
+      {% include "slaves/build-ramdisk.j2.xml" %}
+      {% include "slaves/build-hdd.j2.xml" %}
+      {% include "slaves/selenium.j2.xml" %}
+      {% include "slaves/tools.j2.xml" %}
+    </slaveInfos>
+  </org.jenkinsci.plugins.mesos.MesosCloud>
+</clouds>

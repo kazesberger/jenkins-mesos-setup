@@ -1,0 +1,81 @@
+---
+# file: update-config/tasks/main.yml
+
+- include_vars: "secrets.yml"
+
+- name: "add jenkins group"
+  become: "true"
+  become_user: root
+  group:
+    name="{{ jenkins_user }}"
+    gid="{{ jenkins_uid }}"
+  when: '"slave" in mesos_install_mode'
+
+- name: "add jenkins user"
+  become: "true"
+  become_user: root
+  user:
+    name="{{ jenkins_user }}"
+    createhome="yes"
+    home="{{ jenkins_home }}"
+    generate_ssh_key="no"
+    uid="{{ jenkins_uid }}"
+    groups="docker"
+  when: '"slave" in mesos_install_mode'
+
+#- name: "add mesosnodes to /etc/hosts"
+#  become: "true"
+#  become_user: root
+#  lineinfile:
+#    dest="/etc/hosts"
+#    regexp=".*{{ hostvars[item]['inventory_hostname'] }}.*"
+#    line="{{ hostvars[item]['vm_ip'] }}    {{ hostvars[item]['inventory_hostname'] + '.' + vm_domain }} {{ hostvars[item]['inventory_hostname'] }}"
+#    create="true"
+#  with_items: groups["mesosnodes"]
+
+# TODO remove static host entries
+#- name: "add additional host entries to /etc/hosts"
+#  become: "true"
+#  become_user: root
+#  lineinfile:
+#    dest="/etc/hosts"
+#    regexp=".*{{ item.main_hostname }}.*"
+#    line="{{ item.ip }}    {{ item.main_hostname }} {{ item.alt_hostnames }}"
+#    create="true"
+#  with_items: vm_additional_etc_hosts_entries
+
+- include: ssh-keys.yml
+
+- include: "docker-config.yml"
+
+- include: "ssh-config.yml"
+  when: '"slave" in mesos_install_mode'
+
+- include: "maven-config.yml"
+  when: '"slave" in mesos_install_mode'
+
+- include: gradle-config.yml
+  when: '"slave" in mesos_install_mode'
+
+- include: oracle-config.yml
+  when: '"slave" in mesos_install_mode'
+
+- include: mssql-config.yml
+  when: '"slave" in mesos_install_mode'
+
+- include: misc-config.yml
+  when: '"slave" in mesos_install_mode'
+
+- include: git-config.yml
+  when: '"slave" in mesos_install_mode'
+
+- name: "chown everything in jenkins_home to jenkins:jenkins"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ jenkins_home }}"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="directory"
+    recurse="true"
+  when: '"slave" in mesos_install_mode'

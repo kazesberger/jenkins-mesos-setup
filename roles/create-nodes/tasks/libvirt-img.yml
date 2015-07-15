@@ -1,0 +1,10 @@
+---
+# file: create-nodes/tasks/libvirt-img.yml
+
+- name: "libvirt - img - copy CoreOS image to vm host"
+  delegate_to: "{{ vm_host }}"
+  su: "true"
+  copy:
+    src="/tmp/coreos_production_qemu_image.img"
+    dest="{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}.img"
+  when: "node_status | failed or node_status.status != 'running'"

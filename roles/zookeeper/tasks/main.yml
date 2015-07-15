@@ -1,0 +1,14 @@
+---
+# file: zookeeper/tasks/main.yml
+# Installs Zookeeper
+
+- name: register zookeeper service installed (boolean)
+  stat: path="/etc/systemd/system/zookeeper.service"
+  register: zookeeper_service_installed
+
+- include: "install-CoreOS.yml"
+  when: "'master' in mesos_install_mode"
+
+- include: "uninstall-CoreOS.yml"
+  when:  "{{ zookeeper_service_installed.stat.exists }} and 'master' not in  mesos_install_mode "
+

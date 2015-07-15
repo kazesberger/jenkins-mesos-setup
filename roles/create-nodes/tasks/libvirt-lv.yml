@@ -1,0 +1,27 @@
+---
+# file: create-nodes/tasks/libvirt-lv.yml
+
+- name: "libvirt - lv - copy CoreOS image to vm host"
+  delegate_to: "{{ vm_host }}"
+  su: "true"
+  copy:
+    src="/tmp/coreos_production_qemu_image.img"
+    dest="{{ hostvars[vm_host].config_dir }}/coreos_production_qemu_image.img"
+  when: "node_status | failed or node_status.status != 'running'"
+
+- name: "libvirt - lv - create lv for base image"
+  delegate_to: "{{ vm_host }}"
+  su: "true"
+  lvol:
+    vg="{{ hostvars[vm_host].volume_group }}"
+    lv="{{ item.name }}"
+    size="{{ item.size }}"
+  with_items:
+  - { name: "{{ inventory_hostname }}_lv", size: "{{ vm_base_lv_size }}" }
+  - { name: "{{ inventory_hostname }}_docker_lv", size: "{{ vm_docker_lv_size }}" }
+  - { name: "{{ inventory_hostname }}_opt_lv", size: "{{ vm_opt_lv_size }}" }
+
+- name: "libvirt - lv - copy image to logical volume"
+  delegate_to: "{{ vm_host }}"
+  su: "true"
+  shell: "cat {{ hostvars[vm_host].config_dir }}/coreos_production_qemu_image.img > /dev/{{ hostvars[vm_host].volume_group }}/{{ inventory_hostname }}_lv"

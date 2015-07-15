@@ -1,0 +1,9 @@
+---
+# file: gather-facts/tasks/main.yml
+
+- name: "gather facts"
+  setup:
+
+- name: "set fact ansible_os_family to ansible_lsb.id if NA"
+  set_fact: ansible_os_family="{{ ansible_lsb.id }}"
+  when: ansible_os_family == "NA"

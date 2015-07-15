@@ -1,0 +1,52 @@
+---
+- include_vars: "main.yml"
+
+- name: "gather local executor username "
+  local_action: "command /usr/bin/whoami"
+  register: local_username
+
+- debug: msg="{{ local_username.stdout_lines[0] }}"
+
+- name: generate ssh root keys if they do not exist
+  local_action: "user name={{ local_username.stdout_lines[0] }} generate_ssh_key=yes ssh_key_bits=2048 ssh_key_file=.ssh/id_rsa"
+
+
+- name: delete coreos initial cluster
+  local_action:
+     module: nova_compute
+     state: absent
+     auth_url: "{{ os_auth_url }}"
+     login_username: "{{ os_username }}"
+     login_password: "{{ os_password }}"
+     login_tenant_name: "{{ os_tenant }}"
+     name: "{{ vm_name }}"
+
+- name: install coreos initial cluster
+  local_action:
+     module: nova_compute
+     state: present
+     login_username: "{{ os_username }}"
+     login_password: "{{ os_password }}"
+     login_tenant_name: "{{ os_tenant }}"
+     name: "{{ vm_name }}"
+     image_id: 52115f07-11c2-43e6-8131-ea69984f2e82
+     auth_url: "{{ os_auth_url }}"
+     flavor_ram: "{{ vm_memory }}"
+     user_data:  "{{ lookup('template', '../templates/cloud-config.yaml') }}"
+     security_groups: default,coreos,mesos
+     config_drive: yes
+     nics:
+       - net-id: 9565dc7a-fade-4180-b985-53b10bfa81cb
+     floating_ips:
+       - "{{ vm_ip }}"
+     meta:
+       hostname: "{{ vm_name }}"
+
+- name: wait for startup completed
+  local_action:
+    module: wait_for
+    host: "{{ vm_ip }}"
+    port: 22
+    delay: 10
+    state: started
+

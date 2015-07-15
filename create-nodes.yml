@@ -1,0 +1,32 @@
+---
+# file: main.yml
+# do something
+
+- name: "a play that installs mesos"
+  hosts: "mesosnodes"
+  gather_facts: "false"
+  max_fail_percentage: 0
+
+  handlers:
+  - include: handlers/main.yml
+
+  roles:
+  - update-coreos-userdata
+  - create-nodes
+  - pre-bootstrap
+  - { role: "bootstrap", when: python_available | failed }
+  - post-bootstrap
+  - update-config
+
+- name: "a play that installs mesos"
+  hosts: "mesosnodes"
+  gather_facts: yes
+  max_fail_percentage: 0
+
+  handlers:
+  - include: handlers/main.yml
+
+  roles:
+  - zookeeper
+  - mesos
+  - marathon

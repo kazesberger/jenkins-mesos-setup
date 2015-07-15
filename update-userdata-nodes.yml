@@ -1,0 +1,12 @@
+---
+# file: main.yml
+# do something
+
+- name: "a play that updates all user data in coreos nodes"
+  hosts: "mesosnodes"
+  gather_facts: "false"
+  max_fail_percentage: 0
+  serial: 1
+
+  roles:
+  - update-coreos-userdata

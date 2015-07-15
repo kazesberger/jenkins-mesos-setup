@@ -1,0 +1,18 @@
+---
+# file: update-config/tasks/oracle-config.yml
+
+- name: "oracle-config - check if oracle dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ config_path_oracle }}"
+    mode="644"
+    state="directory"
+
+- name: "oracle-config - copy oracle config"
+  become: "true"
+  become_user: root
+  copy:
+    src="oracle/tnsnames.ora"
+    dest="{{ config_path_oracle }}"
+    mode="644"

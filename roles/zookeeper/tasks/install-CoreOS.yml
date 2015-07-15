@@ -1,0 +1,68 @@
+---
+# file: zookeeper/tasks/install-CoreOS.yml
+# Installs Zookeeper on CoreOS
+
+- name: "create user for zookeeper"
+  user:
+    name="{{ zk_user }}"
+    uid="501"
+    createhome="no"
+    system="yes"
+    shell="/sbin/nologin"
+  become: "true"
+  become_user: root
+  tags: "bootstrap"
+
+- name: "make host directories"
+  file:
+    dest="{{ item }}"
+    state="directory"
+    owner="{{ zk_user }}"
+    group="{{ zk_user }}"
+  become: "true"
+  become_user: root
+  tags: "bootstrap"
+  with_items:
+   - "{{ zk_conf_dir }}"
+   - "{{ zk_data_dir }}"
+   - "{{ zk_log_dir }}"
+   - "{{ zk_tmp_dir }}"
+
+- name: "deploy zoookeeper configuration"
+  become: "true"
+  become_user: root
+  template:
+    src="{{ item.src }}"
+    dest="{{ item.dest }}"
+    owner="{{ zk_user }}"
+    group="{{ zk_user }}"
+    mode="{{ item.mode }}"
+  tags: "deploy"
+  notify:
+  - restart zookeeper service
+  with_items:
+  - { src: "zoo.cfg.j2", dest: "{{ zk_conf_dir }}/zoo.cfg", mode: "644" }
+  - { src: "zookeeper-env.sh.j2", dest: "{{ zk_conf_dir }}/zookeeper-env.sh", mode: "755" }
+  - { src: "log4j.properties.j2", dest: "{{ zk_conf_dir }}/log4j.properties", mode: "644" }
+  - { src: "myid.j2", dest: "{{ zk_data_dir }}/myid", mode: "644" }
+
+
+- name: "deploy zookeeper systemd configuration"
+  template:
+    src="zookeeper.service.j2"
+    dest="/etc/systemd/system/zookeeper.service"
+  become: "true"
+  become_user: root
+  tags: "deploy"
+  notify:
+  - reload systemctl daemon
+  - restart zookeeper service
+
+- name: "check status of zookeeper service"
+  command: "systemctl status zookeeper.service"
+  tags: "deploy"
+  register: zookeeper_status
+  changed_when: zookeeper_status.rc != 0
+  failed_when: False
+  notify:
+  - restart zookeeper service

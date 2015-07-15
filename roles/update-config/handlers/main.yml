@@ -1,0 +1,7 @@
+---
+# file: handlers/main.yml
+# file for global handlers
+
+- name: "update ssh keys"
+  command: "/usr/bin/update-ssh-keys"
+  tags: "deploy"

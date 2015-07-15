@@ -1,0 +1,85 @@
+{% for slaveinfo in slaveinfos %}
+  {% if slaveinfo.type == "build-ramdisk" %}
+<org.jenkinsci.plugins.mesos.MesosSlaveInfo>
+    <slaveCpus>{{ slaveinfo.cpus / 2 }}</slaveCpus>
+    <slaveMem>{{'%0.0f'| format(slaveinfo.memory * 1.2 |float)}}</slaveMem> <!--twice amount of ram due to ramdisk -->
+    <executorCpus>{{ slaveinfo.cpus / 2 }}</executorCpus>
+    <maxExecutors>1</maxExecutors>
+    <executorMem>{{'%0.0f'| format(slaveinfo.memory * 0.8 |float)}}</executorMem> <!--twice amount of ram due to ramdisk -->
+    <remoteFSRoot>/home/jenkins</remoteFSRoot>
+    <idleTerminationMinutes>1</idleTerminationMinutes>
+    <jvmArgs>-Xms16m -XX:+UseConcMarkSweepGC -Djava.net.preferIPv4Stack=true -Dhost.name=$HOSTNAME
+    </jvmArgs>
+    <jnlpArgs>-noReconnect</jnlpArgs>
+    <containerInfo>
+        <type>DOCKER</type>
+        <dockerImage>{{ slaveinfo.image }}</dockerImage>
+        <volumes>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.m2</containerPath>
+                <hostPath>/home/jenkins/.m2</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.ssh</containerPath>
+                <hostPath>/home/jenkins/.ssh</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.gitconfig</containerPath>
+                <hostPath>/home/jenkins/.gitconfig</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/etc/localtime</containerPath>
+                <hostPath>/etc/localtime</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+                <containerPath>/home/jenkins/.gradle</containerPath>
+                <hostPath>/home/jenkins/.gradle</hostPath>
+                <readOnly>true</readOnly>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Volume>
+        </volumes>
+        {% if slaveinfo.swap is defined %}
+        <parameters>
+            <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Parameter>
+                <key>memory-swap</key>
+                <value>{{ slaveinfo.swap }}</value>
+            </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Parameter>
+        </parameters>
+        {% endif %}
+        <networking>BRIDGE</networking>
+        <dockerPrivilegedMode>true</dockerPrivilegedMode>
+    </containerInfo>
+    <additionalURIs>
+        <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-URI>
+            <value>/home/jenkins/.dockercfg</value>
+            <executable>false</executable>
+            <extract>false</extract>
+        </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-URI>
+    </additionalURIs>
+    <additionalCommands>
+        <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+            <value>./init.sh</value>
+        </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+        <org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+            {% if slaveinfo.ramdisk is defined %}
+            <value>mkdir /home/jenkins/workspace &amp;&amp; mount -t tmpfs -o size={{ slaveinfo.ramdisk }} tmpfs /home/jenkins/workspace</value>
+            {% else %}
+            <value>mkdir /home/jenkins/workspace &amp;&amp; mount -t tmpfs -o size={{ slaveinfo.memory }}M tmpfs /home/jenkins/workspace</value>
+            {% endif %}
+        </org.jenkinsci.plugins.mesos.MesosSlaveInfo_-Command>
+    </additionalCommands>
+    <mode>EXCLUSIVE</mode>
+    <runAsUserInfo>
+        <username>jenkins</username>
+        <command>sudo -iu {USERNAME} {SLAVE_CMD}</command>
+    </runAsUserInfo>
+    <maxNodes>-1</maxNodes>
+    <connectionFailureThreshold>5</connectionFailureThreshold>
+    <mesosRetentionStrategy>org.jenkinsci.plugins.mesos.MesosUseSlaveOnceRetentionStrategy</mesosRetentionStrategy>
+    <labelString>{{ slaveinfo.label }}</labelString>
+</org.jenkinsci.plugins.mesos.MesosSlaveInfo>
+  {% endif %}
+{% endfor %}

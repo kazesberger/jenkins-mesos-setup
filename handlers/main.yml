@@ -1,0 +1,73 @@
+---
+# file: handlers/main.yml
+# file for global handlers
+
+- name: "reload systemctl daemon"
+  become: "true"
+  become_user: root
+  command: "systemctl daemon-reload"
+  tags: "deploy"
+
+- name: "restart zookeeper service"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} zookeeper.service"
+  tags: "deploy"
+  register: zookeeper_status
+  changed_when: zookeeper_status.rc == 0
+  failed_when: zookeeper_status.rc != 0
+  with_items:
+  - enable
+  - restart
+  - status
+
+- name: "restart mesos-master service"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} mesos-master.service"
+  tags: "deploy"
+  register: master_status
+  changed_when: master_status.rc == 0
+  failed_when: master_status.rc != 0
+  with_items:
+  - enable
+  - restart
+  - status
+
+- name: "restart mesos-slave service"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} mesos-slave.service"
+  tags: "deploy"
+  register: slave_status
+  changed_when: slave_status.rc == 0
+  failed_when: slave_status.rc != 0
+  with_items:
+  - enable
+  - restart
+  - status
+
+- name: "restart marathon service"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} marathon.service"
+  tags: "deploy"
+  register: marathon_status
+  changed_when: marathon_status.rc == 0
+  failed_when: marathon_status.rc != 0
+  with_items:
+  - enable
+  - restart
+  - status
+
+- name: "restart jenkins service"
+  become: "true"
+  become_user: root
+  command: "systemctl {{ item }} jenkins.service"
+  register: jenkins_status
+  changed_when: jenkins_status.rc == 0
+  failed_when: jenkins_status.rc != 0
+  with_items:
+  - enable
+  - restart
+  - status

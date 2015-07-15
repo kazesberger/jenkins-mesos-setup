@@ -1,0 +1,36 @@
+---
+# file: update-config/tasks/misc-config.yml
+
+- name: "misc-config - check if oracle dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ config_path_misc }}"
+    mode="644"
+    state="directory"
+
+- name: "misc-config - copy oracle config"
+  become: "true"
+  become_user: root
+  copy:
+    src="misc/"
+    dest="{{ config_path_misc }}"
+    mode="644"
+
+- name: "misc-config - create /opt/ mountpoints"
+  become: "true"
+  become_user: root
+  file:
+    dest="/opt/{{ item }}"
+    owner="jenkins"
+    group="jenkins"
+    state="directory"
+  with_items:
+  - local-repos-test
+  - local-repos-test/gradle
+  - local-repos-test/gradle/native
+  - local-repos-test/gradle/wrapper
+  - local-repos-test/gradle/caches
+  - local-repos-test/gradle/daemon
+  - local-repos-test/maven
+  - local-repos-test/maven/repository

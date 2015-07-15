@@ -1,0 +1,36 @@
+---
+# file: mesos/tasks/install-slave-CoreOS.yml
+# Installs Mesos Slave on CoreOS
+
+- name: "create mesos slave directories"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ item }}"
+    state="directory"
+    owner="{{ mesos_user }}"
+    group="{{ mesos_user }}"
+  tags: "bootstrap"
+  with_items:
+  - "{{ mesos_slave_work_dir }}"
+  - "{{ mesos_slave_log_dir }}"
+
+- name: "deploy mesos slave systemd configuration"
+  become: "true"
+  become_user: root
+  template:
+    src="mesos-slave.service.j2"
+    dest="/etc/systemd/system/mesos-slave.service"
+  tags: "deploy"
+  notify:
+  - reload systemctl daemon
+  - restart mesos-slave service
+
+- name: "check status of slave service"
+  command: "systemctl status mesos-slave.service"
+  tags: "deploy"
+  register: slave_status
+  changed_when: slave_status.rc != 0
+  failed_when: False
+  notify:
+  - restart mesos-slave service

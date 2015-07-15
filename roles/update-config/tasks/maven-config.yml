@@ -1,0 +1,48 @@
+---
+# file: update-config/tasks/maven-config.yml
+
+- name: "maven-config - check if .ssh dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ jenkins_home }}/.m2"
+    mode="700"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="directory"
+
+- name: "maven-config - copy general maven config"
+  become: "true"
+  become_user: root
+  copy:
+    src="maven/"
+    dest="{{ jenkins_home }}/.m2"
+    mode="644"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+
+- name: "maven-config - create links"
+  become: "true"
+  become_user: root
+  file:
+    src="{{ jenkins_home }}/local-repos/maven/{{ item }}"
+    dest="{{ jenkins_home }}/.m2/{{ item }}"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="link"
+    force="true"
+  with_items:
+  - repository
+
+- name: "maven-config - update maven settings xmls"
+  become: "true"
+  become_user: root
+  template:
+    src="maven/{{ item }}.j2"
+    dest="{{ jenkins_home }}/.m2/{{ item }}"
+    mode="600"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+  with_items:
+  - "settings.xml"
+  - "settings-security.xml"

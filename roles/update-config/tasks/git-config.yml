@@ -1,0 +1,12 @@
+---
+# file: update-config/tasks/git-config.yml
+
+- name: "git-config - update git config"
+  become: "true"
+  become_user: root
+  copy:
+    src="git/gitconfig"
+    dest="{{ jenkins_home }}/.gitconfig"
+    mode="664"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"

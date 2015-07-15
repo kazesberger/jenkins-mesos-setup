@@ -1,0 +1,17 @@
+---
+# file: main.yml
+# do something
+
+- name: "a play that installs a new coreos cluster"
+  hosts: "mesosnodes"
+  gather_facts: "false"
+  max_fail_percentage: 0
+  serial: 1
+
+  handlers:
+  - include: handlers/main.yml
+
+  roles:
+  - create-new-coreos-cluster
+  - { role: "bootstrap" }
+

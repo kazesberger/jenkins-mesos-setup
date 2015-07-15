@@ -1,0 +1,21 @@
+---
+# file: main.yml
+# do something
+
+- name: "play that adds softlinks of lvs to /bin on vm hosts"
+  hosts: "vm_hosts"
+  gather_facts: "false"
+
+  vars:
+    lv_bins:
+    - { bin: "/sbin/lvs", link: "/bin/lvs" }
+    - { bin: "/sbin/lvcreate", link: "/bin/lvcreate" }
+
+  tasks:
+  - name: "create link"
+    su: true
+    file:
+      dest="{{ item.link }}"
+      src="{{ item.bin }}"
+      state="link"
+    with_items: lv_bins

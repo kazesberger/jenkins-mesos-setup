@@ -1,0 +1,141 @@
+# install jenkins docker
+
+jenkins_docker_image: "grzcidocker01.infonova.at/infonova/jenkins"
+jenkins_docker_version: "debug"
+docker_net_mode: "host"
+jenkins_home_host: /home/jenkins
+jenkins_home_container: /var/lib/jenkins
+
+local_plugins_location: "/tmp/plugins"
+
+plugins:
+
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "polarion", version: "1.3", packaging: "hpi", target: "", classifier: "", finalName: "polarion.hpi"}
+  - { groupId: "com.seitenbau.jenkins.plugins", artifactId: "dynamicparameter", version: "0.2.0", packaging: "hpi", target: "", classifier: "", finalName: "dynamicparameter.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "active-directory", version: "1.33", packaging: "hpi", target: "", classifier: "", finalName: "active-directory.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "job-dsl", version: "1.34", packaging: "jpi", target: "", classifier: "", finalName: "job-dsl.jpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "token-plugin", version: "2.2", packaging: "hpi", target: "", classifier: "", finalName: "token-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ws-cleanup", version: "0.19", packaging: "hpi", target: "", classifier: "", finalName: "ws-cleanup.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "extra-columns", version: "1.15", packaging: "hpi", target: "", classifier: "", finalName: "extra-columns.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "pam-auth", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "pam-auth.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "plain-timestamper", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "plain-timestamper.hpi"}
+#  - { groupId: "org.jvnet.hudson.plugins.m2release", artifactId: "m2release", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "m2release.hpi"}
+#  - { groupId: "org.jenkins-ci.plugins", artifactId: "jenkins-activiti-plugin", version: "1.2-SNAPSHOT (private-d0f8eb12-jenkins)", packaging: "hpi", target: "", classifier: "", finalName: "jenkins-activiti-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "scm-api", version: "0.2", packaging: "hpi", target: "", classifier: "", finalName: "scm-api.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "console-column-plugin", version: "1.5", packaging: "hpi", target: "", classifier: "", finalName: "console-column-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "conditional-buildstep", version: "1.3.3", packaging: "hpi", target: "", classifier: "", finalName: "conditional-buildstep.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "build-name-setter", version: "1.3", packaging: "hpi", target: "", classifier: "", finalName: "build-name-setter.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "cobertura", version: "1.7.1", packaging: "hpi", target: "", classifier: "", finalName: "cobertura.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "translation", version: "1.10", packaging: "hpi", target: "", classifier: "", finalName: "translation.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "sectioned-view", version: "1.18", packaging: "hpi", target: "", classifier: "", finalName: "sectioned-view.hpi"}
+  - { groupId: "com.cloudbees.jenkins.plugins", artifactId: "file-leak-detector", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "file-leak-detector.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "greenballs", version: "1.12", packaging: "hpi", target: "", classifier: "", finalName: "greenballs.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "email-ext", version: "2.25", packaging: "hpi", target: "", classifier: "", finalName: "email-ext.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "async-http-client", version: "1.7.8", packaging: "hpi", target: "", classifier: "", finalName: "async-http-client.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "maven-deployment-linker", version: "1.6-INFONOVA-4", packaging: "hpi", target: "", classifier: "", finalName: "maven-deployment-linker.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "build-timeout", version: "1.11", packaging: "hpi", target: "", classifier: "", finalName: "build-timeout.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "warnings", version: "4.18", packaging: "hpi", target: "", classifier: "", finalName: "warnings.hpi"}
+#  - { groupId: "org.jenkins-ci.plugins", artifactId: "checkstyle", version: "3.32", packaging: "hpi", target: "", classifier: "", finalName: "checkstyle.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "postbuildscript", version: "0.17", packaging: "hpi", target: "", classifier: "", finalName: "postbuildscript.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ssh-credentials", version: "1.10", packaging: "hpi", target: "", classifier: "", finalName: "ssh-credentials.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "git", version: "1.3.0", packaging: "hpi", target: "", classifier: "", finalName: "git.hpi"}
+  - { groupId: "org.jenkins-ci.main", artifactId: "maven-plugin", version: "2.5-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "maven-plugin.hpi"}
+#  - { groupId: "org.jvnet.hudson.plugin", artifactId: "tasks", version: "4.35", packaging: "hpi", target: "", classifier: "", finalName: "tasks.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "slave-setup", version: "1.6", packaging: "hpi", target: "", classifier: "", finalName: "slave-setup.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "show-build-parameters", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "show-build-parameters.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "token-macro", version: "1.6", packaging: "hpi", target: "", classifier: "", finalName: "token-macro.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "parameterized-trigger", version: "2.26", packaging: "hpi", target: "", classifier: "", finalName: "parameterized-trigger.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "run-condition", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "run-condition.hpi"}
+  - { groupId: "com.sonyericsson.jenkins.plugins.bfa", artifactId: "build-failure-analyzer", version: "1.10.3-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "build-failure-analyzer.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "javadoc", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "javadoc.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "credentials", version: "1.20", packaging: "hpi", target: "", classifier: "", finalName: "credentials.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "matrixtieparent", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "matrixtieparent.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "build-user-vars-plugin", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "build-user-vars-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ldap", version: "1.11", packaging: "hpi", target: "", classifier: "", finalName: "ldap.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "junit", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "junit.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "htmlpublisher", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "htmlpublisher.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "analysis-core", version: "1.48", packaging: "hpi", target: "", classifier: "", finalName: "analysis-core.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "matrix-project", version: "1.4", packaging: "hpi", target: "", classifier: "", finalName: "matrix-project.hpi"}
+#  - { groupId: "org.codefirst.jenkins.simplethemeplugin", artifactId: "simple-theme-plugin", version: "0.3", packaging: "hpi", target: "", classifier: "", finalName: "simple-theme-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "cloudbees-folder", version: "4.7", packaging: "hpi", target: "", classifier: "", finalName: "cloudbees-folder.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "claim", version: "2.5", packaging: "hpi", target: "", classifier: "", finalName: "claim.hpi"}
+#  - { groupId: "org.jenkins-ci.plugins", artifactId: "performance", version: "1.8", packaging: "hpi", target: "", classifier: "", finalName: "performance.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "mesos", version: "0.6.0-INFONOVA-8", packaging: "hpi", target: "", classifier: "", finalName: "mesos.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "findbugs", version: "4.45", packaging: "hpi", target: "", classifier: "", finalName: "findbugs.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "tmpcleaner", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "tmpcleaner.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "startup-trigger-plugin", version: "2.4", packaging: "hpi", target: "", classifier: "", finalName: "startup-trigger-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "matrix-auth", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "matrix-auth.hpi"}
+  - { groupId: "com.infonova.jenkins.plugins", artifactId: "repository-cleanup", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "repository-cleanup.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "extended-choice-parameter", version: "0.28", packaging: "hpi", target: "", classifier: "", finalName: "extended-choice-parameter.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "git-server", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "git-server.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "mailer", version: "1.12", packaging: "hpi", target: "", classifier: "", finalName: "mailer.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ant", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "ant.hpi"}
+  - { groupId: "com.cloudbees.jenkins.plugins", artifactId: "custom-tools-plugin", version: "0.2", packaging: "hpi", target: "", classifier: "", finalName: "custom-tools-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "buildgraph-view", version: "1.1.1", packaging: "hpi", target: "", classifier: "", finalName: "buildgraph-view.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "groovy-postbuild", version: "1.8", packaging: "hpi", target: "", classifier: "", finalName: "groovy-postbuild.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "nodejs", version: "0.2.1", packaging: "hpi", target: "", classifier: "", finalName: "nodejs.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "job-poll-action-plugin", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "job-poll-action-plugin.hpi"}
+  - { groupId: "com.sonyericsson.hudson.plugins.rebuild", artifactId: "rebuild", version: "1.21", packaging: "hpi", target: "", classifier: "", finalName: "rebuild.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "mapdb-api", version: "1.0.6.0", packaging: "hpi", target: "", classifier: "", finalName: "mapdb-api.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "configurationslicing", version: "1.40", packaging: "hpi", target: "", classifier: "", finalName: "configurationslicing.hpi"}
+  - { groupId: "jp.ikedam.jenkins.plugins", artifactId: "update-sites-manager", version: "1.0.1", packaging: "hpi", target: "", classifier: "", finalName: "update-sites-manager.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "pmd", version: "3.33", packaging: "hpi", target: "", classifier: "", finalName: "pmd.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ssh-slaves", version: "1.9-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "ssh-slaves.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "dry", version: "2.33", packaging: "hpi", target: "", classifier: "", finalName: "dry.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "sonar", version: "2.1", packaging: "hpi", target: "", classifier: "", finalName: "sonar.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "cvs", version: "2.12", packaging: "hpi", target: "", classifier: "", finalName: "cvs.hpi"}
+  - { groupId: "com.infonova.jenkins.plugins", artifactId: "project-info-column-plugin", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "project-info-column-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "purge-build-queue-plugin", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "purge-build-queue-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "maven-dependency-update-trigger", version: "1.4", packaging: "hpi", target: "", classifier: "", finalName: "maven-dependency-update-trigger.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "external-monitor-job", version: "1.4", packaging: "hpi", target: "", classifier: "", finalName: "external-monitor-job.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "gradle", version: "1.23", packaging: "hpi", target: "", classifier: "", finalName: "gradle.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "antisamy-markup-formatter", version: "1.2-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "antisamy-markup-formatter.hpi"}
+#  - { groupId: "org.jenkins-ci.plugins", artifactId: "multi-slave-config-plugin", version: "1.2.0", packaging: "hpi", target: "", classifier: "", finalName: "multi-slave-config-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "jobConfigHistory", version: "2.5", packaging: "hpi", target: "", classifier: "", finalName: "jobConfigHistory.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "mask-passwords", version: "2.7.3", packaging: "hpi", target: "", classifier: "", finalName: "mask-passwords.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "scriptler", version: "2.6.1", packaging: "hpi", target: "", classifier: "", finalName: "scriptler.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "nested-view", version: "1.14", packaging: "hpi", target: "", classifier: "", finalName: "nested-view.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "ccr-parameter-plugin", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "ccr-parameter-plugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "infonova-build-stats", version: "1.2", packaging: "hpi", target: "", classifier: "", finalName: "infonova-build-stats.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "subversion", version: "2.4.5-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "subversion.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "elastic-axis", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "elastic-axis.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "radiatorviewplugin", version: "1.23-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "radiatorviewplugin.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "cygpath", version: "1.5", packaging: "hpi", target: "", classifier: "", finalName: "cygpath.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "envinject", version: "1.88", packaging: "hpi", target: "", classifier: "", finalName: "envinject.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "role-strategy", version: "2.2.0", packaging: "hpi", target: "", classifier: "", finalName: "role-strategy.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "description-setter", version: "1.8", packaging: "hpi", target: "", classifier: "", finalName: "description-setter.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "git-client", version: "1.0.5", packaging: "hpi", target: "", classifier: "", finalName: "git-client.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "built-on-column", version: "1.1", packaging: "hpi", target: "", classifier: "", finalName: "built-on-column.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "dependencyanalyzer", version: "0.6", packaging: "hpi", target: "", classifier: "", finalName: "dependencyanalyzer.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "compact-columns", version: "1.9", packaging: "hpi", target: "", classifier: "", finalName: "compact-columns.hpi"}
+  - { groupId: "org.jenkins-ci.plugins", artifactId: "skip-certificate-check", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "skip-certificate-check.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "status-view", version: "1.0", packaging: "hpi", target: "", classifier: "", finalName: "status-view.hpi"}
+  - { groupId: "hudson.queueSorter", artifactId: "PrioritySorter", version: "1.3-INFONOVA-1", packaging: "hpi", target: "", classifier: "", finalName: "PrioritySorter.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "log-parser", version: "1.0.8", packaging: "hpi", target: "", classifier: "", finalName: "log-parser.hpi"}
+  - { groupId: "org.jvnet.hudson.plugins", artifactId: "cron_column", version: "1.003", packaging: "hpi", target: "", classifier: "", finalName: "cron_column.hpi"}
+
+mesoscloud_master: "zk://10.1.80.106:2181,10.1.80.86:2181,10.1.80.117:2181/jenkins-slaves-cluster"
+
+
+slave_build_dockerimage: "grzcidocker01.infonova.at/infonova/jenkins-slave-maven:3.3.2"
+slave_selenium_dockerimage: "grzcidocker01.infonova.at/infonova/jenkins-slave-selenium:3.3"
+
+
+slaveinfos:
+  - { type: "build-ramdisk", label: "build1G", cpus: 1, memory: 1024, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-ramdisk", label: "build2G", cpus: 1, memory: 2048, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-ramdisk", label: "build3G", cpus: 1, memory: 3072, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-ramdisk", label: "build4G", cpus: 1, memory: 4096, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-ramdisk", label: "build5G", cpus: 1, memory: 5120, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-ramdisk", label: "build6G", cpus: 1, memory: 6104, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build1G-HDD", cpus: 1, memory: 1024, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build2G-HDD", cpus: 1, memory: 2048, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build3G-HDD", cpus: 1, memory: 3072, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build4G-HDD", cpus: 1, memory: 4096, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build5G-HDD", cpus: 1, memory: 5120, image: "{{ slave_build_dockerimage }}" }
+  - { type: "build-hdd", label: "build6G-HDD", cpus: 1, memory: 6104, image: "{{ slave_build_dockerimage }}" }
+  - { type: "selenium", label: "selenium-linux1G", cpus: 1, memory: 1024, image: "{{ slave_selenium_dockerimage }}" }
+  - { type: "selenium", label: "selenium-linux2G", cpus: 1, memory: 2048, image: "{{ slave_selenium_dockerimage }}" }
+  - { type: "selenium", label: "selenium-linux3G", cpus: 1, memory: 3072, image: "{{ slave_selenium_dockerimage }}" }
+  - { type: "selenium", label: "selenium-linux4G", cpus: 1, memory: 4096, image: "{{ slave_selenium_dockerimage }}" }
+  - { type: "tools", label: "tools", cpus: 1, memory: 1024, image: "{{ slave_build_dockerimage }}" }

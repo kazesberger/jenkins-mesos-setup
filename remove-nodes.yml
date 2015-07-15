@@ -1,0 +1,20 @@
+---
+# file: main.yml
+# do something
+
+- name: "a play that removes nodes from vm hosts"
+  hosts: "mesosnodes"
+  gather_facts: "false"
+
+  tasks:
+  - name: "vagrant - remove nodes"
+    delegate_to: "{{ vm_host }}"
+    command: "vagrant destroy -f {{ inventory_hostname }}"
+    args:
+      chdir: "{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}"
+    when: hostvars[vm_host].prov_type == "vagrant"
+
+  - name: "libvirt - remove nodes"
+    delegate_to: "{{ vm_host }}"
+    command: "virsh undefine {{ inventory_hostname }} --remove-all-storage"
+    when: hostvars[vm_host].prov_type == "libvirt"

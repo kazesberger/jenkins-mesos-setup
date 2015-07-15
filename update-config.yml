@@ -1,0 +1,9 @@
+---
+# file: update-config.yml
+# updates config on mesosnodes
+
+- name: "a play that updates config on mesosnodes"
+  hosts: "mesosnodes"
+
+  roles:
+  - update-config

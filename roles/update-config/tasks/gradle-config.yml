@@ -1,0 +1,51 @@
+---
+# file: update-config/tasks/gradle-config.yml
+
+- name: "gradle-config - check if .gradle dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ jenkins_home }}/.gradle"
+    mode="700"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="directory"
+
+- name: "gradle-config - copy general gradle config"
+  become: "true"
+  become_user: root
+  copy:
+    src="gradle/"
+    dest="{{ jenkins_home }}/.gradle"
+    mode="644"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+
+- name: "gradle-config - create links"
+  become: "true"
+  become_user: root
+  file:
+    src="{{ jenkins_home }}/local-repos/gradle/{{ item }}"
+    dest="{{ jenkins_home }}/.gradle/{{ item }}"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+    state="link"
+    force="true"
+  with_items:
+  - native
+  - caches
+  - daemon
+  - wrapper
+
+- name: "gradle-config - update gradle configs"
+  become: "true"
+  become_user: root
+  template:
+    src="gradle/{{ item }}.j2"
+    dest="{{ jenkins_home }}/.gradle/{{ item }}"
+    mode="600"
+    owner="{{ jenkins_user }}"
+    group="{{ jenkins_user }}"
+  with_items:
+  - "gradle.properties"
+  - "init.d/profiles/database-profiles.groovy"

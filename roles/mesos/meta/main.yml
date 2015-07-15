@@ -1,0 +1,6 @@
+---
+# file: mesos/meta/main.yml
+# Meta information for Mesos role
+
+#dependencies:
+#- zookeeper

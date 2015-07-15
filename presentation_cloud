@@ -1,0 +1,36 @@
+[mesosnodes]
+jucnode01 ansible-ssh-user="core" ansible_ssh_host="10.1.80.112" vm_ip="10.1.80.112" vm_name="jucnode01" mesos_install_mode="master-slave" mesos_slave_resources="cpus:2;mem:4096;ports:[8000-9000]"
+jucnode02 ansible-ssh-user="core" ansible_ssh_host="10.1.80.113" vm_ip="10.1.80.113" vm_name="jucnode02" mesos_install_mode="master-slave" mesos_slave_resources="cpus:2;mem:4096;ports:[8000-9000]"
+jucnode03 ansible-ssh-user="core" ansible_ssh_host="10.1.80.114" vm_ip="10.1.80.114" vm_name="jucnode03" mesos_install_mode="master-slave" mesos_slave_resources="cpus:2;mem:4096;ports:[8000-9000]"
+
+[mesosnodes:vars]
+# the discovery url has to be generated new, everytime a new cluster is created
+discovery_url="https://discovery.etcd.io/b6ec555381fc4e329b34f82eea37e615"
+#vm_gateway="10.1.42.1"
+vm_base_lv_size="10G"
+vm_docker_lv_size="80G"
+vm_opt_lv_size="110G"
+update_etc_hosts="true"
+ansible_ssh_user="core"
+ansible_python_interpreter="PATH=/home/core/bin:$PATH python"
+mesos_slave_port="5051"
+mesos_master_port="5050"
+#vm_cpus="1"
+vm_memory="4096"
+#mesos_slave_resources="cpus:1;mem:512;ports:[8000-9000]"
+
+[zookeeper_hosts]
+jucnode01 zoo_id="1"
+jucnode02 zoo_id="2"
+jucnode03 zoo_id="3"
+
+[zookeeper_hosts:vars]
+zk_client_port="2181"
+zk_election_port_1="2888"
+zk_election_port_2="3888"
+
+[jenkins_master_hosts]
+jucnode01
+
+[jenkins_master_hosts:vars]
+mesoscloud_master="zk://10.1.80.112:2181,10.1.80.113:2181,10.1.80.114:2181/jenkins-slaves-cluster"

@@ -1,0 +1,6 @@
+---
+# file: marathon/meta/main.yml
+# Meta information for Marathon role
+
+dependencies:
+- mesos

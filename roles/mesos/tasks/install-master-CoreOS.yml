@@ -1,0 +1,36 @@
+---
+# file: mesos/tasks/install-master-CoreOS.yml
+# Installs Mesos Master on CoreOS
+
+- name: "create mesos master directories"
+  file:
+    dest="{{ item }}"
+    state="directory"
+    owner="{{ mesos_user }}"
+    group="{{ mesos_user }}"
+  become: "true"
+  become_user: root
+  tags: "bootstrap"
+  with_items:
+  - "{{ mesos_master_work_dir }}"
+  - "{{ mesos_master_log_dir }}"
+
+- name: "deploy mesos master systemd configuration"
+  template:
+    src="mesos-master.service.j2"
+    dest="/etc/systemd/system/mesos-master.service"
+  become: "true"
+  become_user: root
+  tags: "deploy"
+  notify:
+  - reload systemctl daemon
+  - restart mesos-master service
+
+- name: "check status of master service"
+  command: "systemctl status mesos-master.service"
+  tags: "deploy"
+  register: master_status
+  changed_when: master_status.rc != 0
+  failed_when: False
+  notify:
+  - restart mesos-master service

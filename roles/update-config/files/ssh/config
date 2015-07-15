@@ -1,0 +1,13 @@
+# Add special configuration for ssh client
+#
+# This file contains special configurations for the ssh client, like exceptions
+# for host key checking and different auth methods etc.
+#
+# For external hosts (production, UAT, OAT, etc.) please add an entry to the
+# ".ssh/known_hosts" file.
+#
+
+# Deactivate host key checking for internal ci network
+Host service.company.com testhost.company.com
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null

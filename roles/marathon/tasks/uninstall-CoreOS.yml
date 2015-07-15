@@ -1,0 +1,26 @@
+---
+# file: marathon/tasks/uninstall-CoreOS.yml
+# Removes Marathon from CoreOS
+
+- name: stop and disable marthon service
+  become: "true"
+  become_user: root
+  service:
+    name="marathon.service"
+    enabled="no"
+    state="stopped"
+
+- name: remove service script
+  file:
+    dest="/etc/systemd/system/marathon.service"
+    state="absent"
+  become: "true"
+  become_user: root
+  notify:
+  - reload systemctl daemon
+
+- name: remove marathon docker container
+  command: "/usr/bin/docker rm marathon"
+
+- name: remove marathon docker image
+  command: "/usr/bin/docker rmi {{ marathon_docker_image }}"

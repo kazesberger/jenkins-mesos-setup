@@ -1,0 +1,10 @@
+---
+# file: group_vars/zookeeper_hosts
+
+zk_version: "3.4.6"
+zk_user: "zookeeper"
+zk_conf_dir: "/opt/zookeeper/conf"
+zk_data_dir: "/var/lib/zookeeper"
+zk_log_dir: "/var/log/zookeeper"
+zk_tmp_dir: "/tmp/zookeeper"
+zk_docker_image: "jplock/zookeeper:{{ zk_version }}"

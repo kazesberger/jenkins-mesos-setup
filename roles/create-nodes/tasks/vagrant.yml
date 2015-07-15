@@ -1,0 +1,34 @@
+---
+# file: create-nodes/tasks/vagrant.yml
+
+- name: "vagrant - ensure config dir exists"
+  delegate_to: "{{ vm_host }}"
+  file:
+    dest="{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}"
+    state="directory"
+
+- name: "vagrant - copy vagrant config files to config dir"
+  delegate_to: "{{ vm_host }}"
+  template:
+    src="vagrant/{{ item }}.j2"
+    dest="{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}/{{ item }}"
+  with_items:
+  - "Vagrantfile"
+  - "user-data"
+
+- name: "vagrant - check if node is running"
+  delegate_to: "{{ vm_host }}"
+  command: "vagrant status {{ inventory_hostname }}"
+  args:
+    chdir: "{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}"
+  register: vagrant_status
+  changed_when: "'running' not in vagrant_status.stdout"
+  tags: "bootstrap"
+
+- name: "vagrant - start and provision node"
+  delegate_to: "{{ vm_host }}"
+  command: "vagrant up {{ inventory_hostname }}"
+  args:
+    chdir: "{{ hostvars[vm_host].config_dir }}/{{ inventory_hostname }}"
+  when: "'running' not in vagrant_status.stdout"
+  tags: "bootstrap"

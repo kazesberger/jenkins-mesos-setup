@@ -1,0 +1,17 @@
+// *************************************
+// Init GRADLE Script for easytax builds
+// *************************************
+
+allprojects {
+   project.logger.info("initialize EASYTAX profiles")
+   project.ext.set('databaseProfiles', getProfile('database-profiles.groovy'))
+   project.ext.set('integrationtestProfiles', getProfile('integrationtest-profiles.groovy'))
+}
+
+def getProfile(fileName) {
+    def folder = file(System.getProperty("user.home") + '/.gradle/init.d/profiles/')
+
+    def profiles = new File(folder, fileName)
+    def config = new ConfigSlurper().parse(profiles.toURL())
+    return config.getProperty("profiles")
+}

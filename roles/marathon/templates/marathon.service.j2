@@ -1,0 +1,31 @@
+[Unit]
+Description=Marathon
+After=docker.service zookeeper.service mesos-master.service
+Requires=docker.service zookeeper.service mesos-master.service
+
+[Service]
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill marathon
+ExecStartPre=-/usr/bin/docker rm marathon
+ExecStartPre=/usr/bin/docker pull {{ marathon_docker_image }}
+ExecStart=/usr/bin/docker run \
+    --name marathon \
+    --net={{ docker_net_mode }} \
+    -e LIBPROCESS_PORT={{ marathon_libprocess_port }} \
+    -p {{ marathon_http_port }}:{{ marathon_http_port }} \
+    -p {{ marathon_libprocess_port }}:{{ marathon_libprocess_port }} \
+    {{ marathon_docker_image }} \
+    {% for option in marathon_options %}
+      {% if not loop.last %}
+        {{ option }} \
+      {% else %}
+        {{ option }}
+      {% endif %}
+    {% endfor %}
+
+ExecStop=/usr/bin/docker stop marathon
+
+[Install]
+WantedBy=multi-user.target

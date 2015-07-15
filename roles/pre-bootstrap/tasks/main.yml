@@ -1,0 +1,9 @@
+---
+# file: prerequisites/tasks/main.yml
+
+- name: "check if python is available"
+  command: "python --version"
+  ignore_errors: "true"
+  register: python_available
+  changed_when: false
+  tags: "bootstrap"

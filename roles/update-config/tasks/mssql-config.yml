@@ -1,0 +1,18 @@
+---
+# file: update-config/tasks/mssql-config.yml
+
+- name: "mssql-config - check if oracle dir exists"
+  become: "true"
+  become_user: root
+  file:
+    dest="{{ config_path_mssql }}"
+    mode="644"
+    state="directory"
+
+- name: "mssql-config - copy oracle config"
+  become: "true"
+  become_user: root
+  copy:
+    src="mssql/odbc.ini"
+    dest="{{ config_path_mssql }}"
+    mode="644"
